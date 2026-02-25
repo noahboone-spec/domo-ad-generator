@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "render": "npx tsx scripts/render-all.ts",
+    "push-figma": "npx tsx scripts/push-to-figma.ts"
   },
   "dependencies": {
     "next": "16.1.6",
@@ -14,13 +16,16 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@figma/code-connect": "^1.4.1",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "playwright": "^1.58.2",
     "tailwindcss": "^4",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
