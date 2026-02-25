@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "render": "npx tsx scripts/render-all.ts",
-    "push-figma": "npx tsx scripts/push-to-figma.ts"
+    "push-figma": "npx tsx scripts/push-to-figma.ts",
+    "serve-figma": "npx tsx scripts/serve-for-figma.ts"
   },
   "dependencies": {
     "next": "16.1.6",

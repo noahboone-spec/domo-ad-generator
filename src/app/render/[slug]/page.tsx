@@ -1,22 +1,20 @@
 "use client";
 
 import { use } from "react";
+import { useSearchParams } from "next/navigation";
 import { bannerSizes } from "@/lib/banner-sizes";
 import { layoutMap } from "@/layouts";
-import { defaultTheme } from "@/themes";
+import { themes, defaultTheme } from "@/themes";
 
 /**
  * Render Route — Renders a single banner at exact pixel dimensions.
  *
- * URL pattern: /render/gdn-300x250
+ * URL pattern: /render/gdn-300x250?headline=...&cta=...&theme=...
  *
- * This page is what Playwright visits to screenshot each banner.
- * It renders the banner with NO padding, NO chrome — just the banner
- * at its exact pixel size. Playwright then screenshots the viewport
- * at that exact size to get a pixel-perfect PNG.
- *
- * The [slug] in the folder name is a Next.js dynamic route parameter.
- * Visiting /render/gdn-300x250 sets params.slug = "gdn-300x250".
+ * Now accepts query params so Playwright can render any combination:
+ * - headline: Custom headline text
+ * - cta: Custom CTA text
+ * - theme: Theme name (must match a theme in the registry)
  */
 export default function RenderPage({
   params,
@@ -24,6 +22,8 @@ export default function RenderPage({
   params: Promise<{ slug: string }>;
 }) {
   const { slug } = use(params);
+  const searchParams = useSearchParams();
+
   const size = bannerSizes.find((s) => s.slug === slug);
   const Layout = layoutMap[slug];
 
@@ -31,10 +31,12 @@ export default function RenderPage({
     return <div>Unknown banner size: {slug}</div>;
   }
 
-  // TODO: These will come from URL search params once KG is integrated
-  const theme = defaultTheme;
-  const headline = "Maximize your finance data to fuel your business strategy";
-  const cta = "LEARN MORE";
+  const themeName = searchParams.get("theme");
+  const theme = themes.find((t) => t.name === themeName) || defaultTheme;
+  const headline =
+    searchParams.get("headline") ||
+    "Maximize your finance data to fuel your business strategy";
+  const cta = searchParams.get("cta") || "LEARN MORE";
 
   return (
     <div style={{ margin: 0, padding: 0 }}>

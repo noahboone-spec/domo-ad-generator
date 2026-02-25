@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      padding: 16px;
+      background: #1e1e1e;
+      color: #e0e0e0;
+      font-size: 13px;
+    }
+    h2 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #99CCEE;
+    }
+    .status {
+      background: #2a2a2a;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      min-height: 40px;
+    }
+    .status-item {
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .status-item .check { color: #4CAF50; }
+    .status-item .fail { color: #f44336; }
+    .status-item .loading { color: #FFB656; }
+    .progress-bar {
+      width: 100%;
+      height: 6px;
+      background: #333;
+      border-radius: 3px;
+      overflow: hidden;
+      margin: 12px 0;
+    }
+    .progress-fill {
+      height: 100%;
+      background: #99CCEE;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+      width: 0%;
+    }
+    .info {
+      font-size: 11px;
+      color: #888;
+      margin-top: 8px;
+    }
+    .error {
+      color: #f44336;
+      background: #2a1515;
+      padding: 8px 12px;
+      border-radius: 6px;
+      margin-top: 8px;
+    }
+    .done {
+      color: #4CAF50;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    button {
+      background: #99CCEE;
+      color: #111;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+    button:hover { background: #b3d9f2; }
+  </style>
+</head>
+<body>
+  <h2>Domo Banner Importer</h2>
+  <div class="status" id="status">
+    <div class="status-item">
+      <span class="loading">●</span>
+      <span>Connecting to local server...</span>
+    </div>
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+  <div id="message"></div>
+  <div class="info">Fetches banners from localhost:8765 (run <code>npm run serve-figma</code>)</div>
+
+  <script>
+    const SERVER = "http://localhost:8765";
+    const statusEl = document.getElementById("status");
+    const progressEl = document.getElementById("progress");
+    const messageEl = document.getElementById("message");
+
+    function setStatus(html) {
+      statusEl.innerHTML = html;
+    }
+
+    function addStatus(html) {
+      statusEl.innerHTML += html;
+    }
+
+    // Listen for messages from plugin code
+    onmessage = (event) => {
+      const msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === "progress") {
+        const pct = Math.round((msg.done / msg.total) * 100);
+        progressEl.style.width = pct + "%";
+        addStatus(
+          `<div class="status-item"><span class="check">✓</span><span>${msg.slug}</span></div>`
+        );
+      }
+
+      if (msg.type === "error") {
+        addStatus(
+          `<div class="status-item"><span class="fail">✗</span><span>${msg.slug}: ${msg.message}</span></div>`
+        );
+      }
+
+      if (msg.type === "complete") {
+        progressEl.style.width = "100%";
+        messageEl.innerHTML = `<p class="done">Done! Created ${msg.count} banners on page "${msg.pageName}"</p>
+          <button onclick="parent.postMessage({ pluginMessage: { type: 'close' } }, '*')">Close Plugin</button>`;
+      }
+    };
+
+    async function run() {
+      try {
+        // 1. Fetch manifest
+        setStatus(
+          '<div class="status-item"><span class="loading">●</span><span>Fetching manifest...</span></div>'
+        );
+
+        const manifestRes = await fetch(SERVER + "/manifest.json");
+        if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
+        const manifest = await manifestRes.json();
+
+        setStatus(
+          `<div class="status-item"><span class="check">✓</span><span>Found ${manifest.banners.length} banners: "${manifest.pageName}"</span></div>`
+        );
+
+        // 2. Download each banner image
+        const banners = [];
+        for (let i = 0; i < manifest.banners.length; i++) {
+          const b = manifest.banners[i];
+          addStatus(
+            `<div class="status-item"><span class="loading">●</span><span>Downloading ${b.slug}...</span></div>`
+          );
+
+          const imgRes = await fetch(SERVER + "/" + b.file);
+          if (!imgRes.ok) throw new Error(`Failed to download ${b.file}`);
+          const buffer = await imgRes.arrayBuffer();
+
+          banners.push({
+            slug: b.slug,
+            width: b.width,
+            height: b.height,
+            imageBytes: Array.from(new Uint8Array(buffer)),
+          });
+
+          const pct = Math.round(((i + 1) / manifest.banners.length) * 50);
+          progressEl.style.width = pct + "%";
+        }
+
+        // 3. Send to plugin code to create frames
+        setStatus(
+          '<div class="status-item"><span class="loading">●</span><span>Creating frames in Figma...</span></div>'
+        );
+        progressEl.style.width = "50%";
+
+        parent.postMessage(
+          {
+            pluginMessage: {
+              type: "create-banners",
+              pageName: manifest.pageName,
+              banners,
+            },
+          },
+          "*"
+        );
+      } catch (err) {
+        setStatus("");
+        messageEl.innerHTML = `<div class="error">
+          <strong>Connection failed</strong><br>
+          Make sure the local server is running:<br>
+          <code>npm run serve-figma -- --dir data-integration</code><br><br>
+          Error: ${err.message}
+        </div>`;
+      }
+    }
+
+    run();
+  </script>
+</body>
+</html>
