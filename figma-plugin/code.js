@@ -1,14 +1,16 @@
 /**
  * Domo Banner Importer — Figma Plugin
  *
- * Creates a new page with banner frames, each filled with an imported image.
- * Fetches banner images from a local server (scripts/serve-for-figma.ts).
+ * Imports SVG banners as fully editable vector layers in Figma.
+ * Each SVG's named groups (Background, Logo, Headline, CTA, Illustration)
+ * become separate editable layers.
+ *
+ * Uses figma.createNodeFromSvg() to preserve vector structure and text.
  *
  * Flow:
- * 1. Plugin UI fetches manifest from localhost:8765
- * 2. Downloads each banner PNG
- * 3. Sends image bytes to this code via postMessage
- * 4. This code creates frames and applies image fills
+ * 1. Plugin UI fetches manifest + SVGs from localhost:8765
+ * 2. Sends SVG strings to this code via postMessage
+ * 3. This code creates editable Figma nodes from each SVG
  */
 
 figma.showUI(__html__, { width: 450, height: 400 });
@@ -28,28 +30,38 @@ figma.ui.onmessage = async (msg) => {
 
     for (const banner of banners) {
       try {
-        // Create the frame at exact banner dimensions
-        const frame = figma.createFrame();
-        frame.name = banner.slug;
-        frame.resize(banner.width, banner.height);
-        frame.x = xOffset;
-        frame.y = 0;
+        let node;
 
-        // Convert the byte array to Uint8Array and create a Figma image
-        const imageBytes = new Uint8Array(banner.imageBytes);
-        const image = figma.createImage(imageBytes);
+        if (banner.svgContent) {
+          // SVG import — creates fully editable vector nodes
+          node = figma.createNodeFromSvg(banner.svgContent);
+          node.name = banner.slug;
+          node.x = xOffset;
+          node.y = 0;
+        } else if (banner.imageBytes) {
+          // PNG fallback — creates frame with image fill
+          const frame = figma.createFrame();
+          frame.name = banner.slug;
+          frame.resize(banner.width, banner.height);
+          frame.x = xOffset;
+          frame.y = 0;
 
-        // Apply the image as a fill on the frame
-        frame.fills = [
-          {
-            type: "IMAGE",
-            scaleMode: "FILL",
-            imageHash: image.hash,
-          },
-        ];
+          const imageBytes = new Uint8Array(banner.imageBytes);
+          const image = figma.createImage(imageBytes);
+          frame.fills = [
+            {
+              type: "IMAGE",
+              scaleMode: "FILL",
+              imageHash: image.hash,
+            },
+          ];
+          node = frame;
+        }
 
-        xOffset += banner.width + SPACING;
-        created.push(banner.slug);
+        if (node) {
+          xOffset += (node.width || banner.width) + SPACING;
+          created.push(banner.slug);
+        }
 
         // Notify UI of progress
         figma.ui.postMessage({

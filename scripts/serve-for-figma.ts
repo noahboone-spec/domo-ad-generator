@@ -1,21 +1,20 @@
 /**
  * Serve for Figma — Local HTTP server for the Figma plugin.
  *
- * Serves rendered banner PNGs + a manifest.json so the Figma plugin
- * can fetch images and create frames with image fills.
+ * Auto-detects SVG or PNG files in the output directory and serves
+ * them with proper CORS headers for the Figma plugin to fetch.
  *
  * Usage:
+ *   npx tsx scripts/serve-for-figma.ts --dir di-svgs
  *   npx tsx scripts/serve-for-figma.ts --dir data-integration
- *   npx tsx scripts/serve-for-figma.ts --dir data-integration --page "DI Campaign"
+ *   npx tsx scripts/serve-for-figma.ts --dir di-svgs --page "DI Campaign"
  *
  * Options:
  *   --dir   Subdirectory inside output/ to serve (required)
- *   --page  Name for the Figma page (default: directory name)
+ *   --page  Name for the Figma page (default: from directory name)
  *   --port  Server port (default: 8765)
  *
- * Then in Figma: Plugins → Development → Import plugin from manifest
- *               (point to figma-plugin/manifest.json)
- *               Run the plugin — it fetches from this server.
+ * Then in Figma: Plugins → Development → Domo Banner Importer
  */
 import http from "http";
 import fs from "fs";
@@ -38,6 +37,12 @@ const bannerDimensions: Record<string, { width: number; height: number }> = {
   "gdn-300x600": { width: 300, height: 600 },
 };
 
+const CONTENT_TYPES: Record<string, string> = {
+  ".svg": "image/svg+xml",
+  ".png": "image/png",
+  ".jpg": "image/jpeg",
+};
+
 function parseArgs() {
   const args = process.argv.slice(2);
   const opts: Record<string, string> = {};
@@ -57,7 +62,7 @@ function main() {
 
   if (!subDir) {
     console.error("Usage: npx tsx scripts/serve-for-figma.ts --dir <subdirectory>");
-    console.error("Example: npx tsx scripts/serve-for-figma.ts --dir data-integration");
+    console.error("Example: npx tsx scripts/serve-for-figma.ts --dir di-svgs");
     process.exit(1);
   }
 
@@ -67,25 +72,38 @@ function main() {
     process.exit(1);
   }
 
-  const files = fs.readdirSync(sourceDir).filter((f) => f.endsWith(".png"));
+  // Auto-detect file type: prefer SVGs, fall back to PNGs
+  let files = fs.readdirSync(sourceDir).filter((f) => f.endsWith(".svg"));
+  let fileType: "svg" | "png" = "svg";
+
   if (files.length === 0) {
-    console.error(`No PNGs in ${sourceDir}`);
+    files = fs.readdirSync(sourceDir).filter((f) => f.endsWith(".png"));
+    fileType = "png";
+  }
+
+  if (files.length === 0) {
+    console.error(`No SVG or PNG files in ${sourceDir}`);
     process.exit(1);
   }
 
-  // Build the page name from --page flag or directory name
+  const ext = fileType === "svg" ? ".svg" : ".png";
+
+  // Build the page name
   const pageName =
     opts.page ||
     subDir
-      .split("-")
+      .replace(/-svgs$/, "")
+      .replace(/-png$/, "")
+      .split(/[-_]/)
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
       .join(" ") + " Banners";
 
   // Build manifest
   const manifest = {
     pageName,
+    fileType,
     banners: files.map((f) => {
-      const slug = f.replace(".png", "");
+      const slug = f.replace(ext, "");
       const dims = bannerDimensions[slug] || { width: 300, height: 250 };
       return {
         slug,
@@ -113,21 +131,24 @@ function main() {
     if (url === "/manifest.json") {
       res.writeHead(200, { "Content-Type": "application/json" });
       res.end(JSON.stringify(manifest, null, 2));
-      console.log(`  → Served manifest (${manifest.banners.length} banners)`);
+      console.log(`  → Served manifest (${manifest.banners.length} ${fileType.toUpperCase()} banners)`);
       return;
     }
 
-    // Serve PNG files
-    const filename = url.slice(1); // remove leading /
+    // Serve banner files
+    const filename = url.slice(1);
     if (filename && files.includes(filename)) {
       const filePath = path.join(sourceDir, filename);
       const data = fs.readFileSync(filePath);
+      const fileExt = path.extname(filename);
+      const contentType = CONTENT_TYPES[fileExt] || "application/octet-stream";
+
       res.writeHead(200, {
-        "Content-Type": "image/png",
+        "Content-Type": contentType,
         "Content-Length": data.length,
       });
       res.end(data);
-      console.log(`  → Served ${filename} (${data.length} bytes)`);
+      console.log(`  → Served ${filename} (${(data.length / 1024).toFixed(0)}KB)`);
       return;
     }
 
@@ -136,16 +157,21 @@ function main() {
   });
 
   server.listen(port, () => {
-    console.log(`\nDomo Banner Server running on http://localhost:${port}`);
-    console.log(`Serving ${files.length} banners from output/${subDir}/`);
-    console.log(`Page name: "${pageName}"`);
+    const typeLabel = fileType === "svg" ? "SVG (editable vectors)" : "PNG (flat images)";
+    console.log(`\nDomo Banner Server — http://localhost:${port}`);
+    console.log(`${"─".repeat(50)}`);
+    console.log(`Directory:  output/${subDir}/`);
+    console.log(`File type:  ${typeLabel}`);
+    console.log(`Page name:  "${pageName}"`);
+    console.log(`Banners:    ${files.length}`);
+    console.log(`${"─".repeat(50)}`);
     console.log(`\nEndpoints:`);
-    console.log(`  GET /manifest.json  — Banner metadata`);
+    console.log(`  GET /manifest.json`);
     for (const f of files) {
       console.log(`  GET /${f}`);
     }
-    console.log(`\nNow open Figma and run the "Domo Banner Importer" plugin.`);
-    console.log(`Press Ctrl+C to stop.\n`);
+    console.log(`\nOpen Figma → Plugins → Development → Domo Banner Importer`);
+    console.log(`Press Ctrl+C when done.\n`);
   });
 }
 

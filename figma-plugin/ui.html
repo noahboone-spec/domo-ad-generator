@@ -22,12 +22,15 @@
       padding: 12px;
       margin-bottom: 12px;
       min-height: 40px;
+      max-height: 240px;
+      overflow-y: auto;
     }
     .status-item {
-      padding: 4px 0;
+      padding: 3px 0;
       display: flex;
       align-items: center;
       gap: 8px;
+      font-size: 12px;
     }
     .status-item .check { color: #4CAF50; }
     .status-item .fail { color: #f44336; }
@@ -76,6 +79,16 @@
       margin-top: 8px;
     }
     button:hover { background: #b3d9f2; }
+    .badge {
+      display: inline-block;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 10px;
+      font-weight: 600;
+      margin-left: 6px;
+    }
+    .badge-svg { background: #1a3a1a; color: #4CAF50; }
+    .badge-png { background: #3a2a1a; color: #FFB656; }
   </style>
 </head>
 <body>
@@ -88,7 +101,9 @@
   </div>
   <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
   <div id="message"></div>
-  <div class="info">Fetches banners from localhost:8765 (run <code>npm run serve-figma</code>)</div>
+  <div class="info">
+    Run <code>npm run serve-figma -- --dir di-svgs</code> first
+  </div>
 
   <script>
     const SERVER = "http://localhost:8765";
@@ -96,13 +111,8 @@
     const progressEl = document.getElementById("progress");
     const messageEl = document.getElementById("message");
 
-    function setStatus(html) {
-      statusEl.innerHTML = html;
-    }
-
-    function addStatus(html) {
-      statusEl.innerHTML += html;
-    }
+    function setStatus(html) { statusEl.innerHTML = html; }
+    function addStatus(html) { statusEl.innerHTML += html; }
 
     // Listen for messages from plugin code
     onmessage = (event) => {
@@ -113,20 +123,24 @@
         const pct = Math.round((msg.done / msg.total) * 100);
         progressEl.style.width = pct + "%";
         addStatus(
-          `<div class="status-item"><span class="check">✓</span><span>${msg.slug}</span></div>`
+          '<div class="status-item"><span class="check">✓</span><span>' +
+            msg.slug + " — created</span></div>"
         );
       }
 
       if (msg.type === "error") {
         addStatus(
-          `<div class="status-item"><span class="fail">✗</span><span>${msg.slug}: ${msg.message}</span></div>`
+          '<div class="status-item"><span class="fail">✗</span><span>' +
+            msg.slug + ": " + msg.message + "</span></div>"
         );
       }
 
       if (msg.type === "complete") {
         progressEl.style.width = "100%";
-        messageEl.innerHTML = `<p class="done">Done! Created ${msg.count} banners on page "${msg.pageName}"</p>
-          <button onclick="parent.postMessage({ pluginMessage: { type: 'close' } }, '*')">Close Plugin</button>`;
+        messageEl.innerHTML =
+          '<p class="done">Done! Created ' + msg.count +
+          ' banners on page "' + msg.pageName + '"</p>' +
+          '<button onclick="parent.postMessage({ pluginMessage: { type: \'close\' } }, \'*\')">Close Plugin</button>';
       }
     };
 
@@ -140,37 +154,53 @@
         const manifestRes = await fetch(SERVER + "/manifest.json");
         if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
         const manifest = await manifestRes.json();
+        const fileType = manifest.fileType || "png";
+        const badge = fileType === "svg"
+          ? '<span class="badge badge-svg">SVG</span>'
+          : '<span class="badge badge-png">PNG</span>';
 
         setStatus(
-          `<div class="status-item"><span class="check">✓</span><span>Found ${manifest.banners.length} banners: "${manifest.pageName}"</span></div>`
+          '<div class="status-item"><span class="check">✓</span><span>Found ' +
+            manifest.banners.length + " banners: \"" + manifest.pageName +
+            "\"" + badge + "</span></div>"
         );
 
-        // 2. Download each banner image
+        // 2. Download each banner
         const banners = [];
         for (let i = 0; i < manifest.banners.length; i++) {
           const b = manifest.banners[i];
           addStatus(
-            `<div class="status-item"><span class="loading">●</span><span>Downloading ${b.slug}...</span></div>`
+            '<div class="status-item"><span class="loading">●</span><span>Downloading ' +
+              b.slug + "...</span></div>"
           );
 
-          const imgRes = await fetch(SERVER + "/" + b.file);
-          if (!imgRes.ok) throw new Error(`Failed to download ${b.file}`);
-          const buffer = await imgRes.arrayBuffer();
+          const fileRes = await fetch(SERVER + "/" + b.file);
+          if (!fileRes.ok) throw new Error("Failed to download " + b.file);
 
-          banners.push({
+          const bannerData = {
             slug: b.slug,
             width: b.width,
             height: b.height,
-            imageBytes: Array.from(new Uint8Array(buffer)),
-          });
+          };
+
+          if (fileType === "svg") {
+            // SVG: send as text string for createNodeFromSvg()
+            bannerData.svgContent = await fileRes.text();
+          } else {
+            // PNG: send as byte array for createImage()
+            const buffer = await fileRes.arrayBuffer();
+            bannerData.imageBytes = Array.from(new Uint8Array(buffer));
+          }
+
+          banners.push(bannerData);
 
           const pct = Math.round(((i + 1) / manifest.banners.length) * 50);
           progressEl.style.width = pct + "%";
         }
 
-        // 3. Send to plugin code to create frames
+        // 3. Send to plugin code to create Figma nodes
         setStatus(
-          '<div class="status-item"><span class="loading">●</span><span>Creating frames in Figma...</span></div>'
+          '<div class="status-item"><span class="loading">●</span><span>Creating layers in Figma...</span></div>'
         );
         progressEl.style.width = "50%";
 
@@ -186,12 +216,13 @@
         );
       } catch (err) {
         setStatus("");
-        messageEl.innerHTML = `<div class="error">
-          <strong>Connection failed</strong><br>
-          Make sure the local server is running:<br>
-          <code>npm run serve-figma -- --dir data-integration</code><br><br>
-          Error: ${err.message}
-        </div>`;
+        messageEl.innerHTML =
+          '<div class="error">' +
+          "<strong>Connection failed</strong><br>" +
+          "Make sure the local server is running:<br>" +
+          "<code>npm run serve-figma -- --dir di-svgs</code><br><br>" +
+          "Error: " + err.message +
+          "</div>";
       }
     }
 
