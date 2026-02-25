@@ -10,223 +10,534 @@
       color: #e0e0e0;
       font-size: 13px;
     }
-    h2 {
-      font-size: 16px;
-      font-weight: 600;
-      margin-bottom: 12px;
-      color: #99CCEE;
+    h2 { font-size: 16px; font-weight: 600; margin-bottom: 14px; color: #99CCEE; }
+    label {
+      display: block; font-size: 11px; font-weight: 600; color: #aaa;
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
     }
+    input[type="text"], textarea {
+      width: 100%; padding: 8px 10px; border: 1px solid #444; border-radius: 6px;
+      background: #2a2a2a; color: #e0e0e0; font-size: 13px; margin-bottom: 10px;
+      font-family: inherit;
+    }
+    input[type="text"]:focus, textarea:focus { outline: none; border-color: #99CCEE; }
+    textarea { resize: vertical; min-height: 36px; }
+    select {
+      width: 100%; padding: 8px 10px; border: 1px solid #444; border-radius: 6px;
+      background: #2a2a2a; color: #e0e0e0; font-size: 13px; margin-bottom: 10px;
+    }
+    select:focus { outline: none; border-color: #99CCEE; }
+
+    /* Section dividers */
+    .section { margin-bottom: 14px; }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 6px;
+    }
+
+    /* Small action buttons */
+    .sm-btn {
+      padding: 4px 10px; border: 1px solid #555; border-radius: 4px;
+      background: #333; color: #ccc; font-size: 11px; font-weight: 600;
+      cursor: pointer; transition: all 0.15s;
+    }
+    .sm-btn:hover { background: #444; border-color: #99CCEE; color: #99CCEE; }
+    .sm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .sm-btn.accent { background: #99CCEE; color: #111; border-color: #99CCEE; }
+    .sm-btn.accent:hover { background: #b3d9f2; }
+
+    /* Suggestion chips */
+    .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    .chip {
+      padding: 4px 10px; border-radius: 12px; font-size: 11px;
+      background: #2a2a2a; border: 1px solid #444; cursor: pointer;
+      transition: all 0.15s; max-width: 100%; overflow: hidden;
+      text-overflow: ellipsis; white-space: nowrap;
+    }
+    .chip:hover { border-color: #99CCEE; color: #99CCEE; }
+
+    /* Theme grid */
+    .theme-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+      margin-bottom: 12px;
+    }
+    .theme-swatch {
+      padding: 6px; border: 2px solid #444; border-radius: 6px;
+      cursor: pointer; text-align: center; font-size: 10px; font-weight: 600;
+      transition: all 0.15s; text-transform: capitalize;
+    }
+    .theme-swatch.active { border-color: #99CCEE; }
+    .theme-swatch .swatch-bar {
+      height: 18px; border-radius: 3px; margin-bottom: 4px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 8px; font-weight: 800; letter-spacing: 0.5px;
+    }
+
+    /* Channels */
+    .channels { display: flex; gap: 8px; margin-bottom: 12px; }
+    .channel-btn {
+      flex: 1; padding: 8px; border: 2px solid #444; border-radius: 6px;
+      cursor: pointer; text-align: center; font-size: 12px; font-weight: 600;
+      color: #aaa; transition: all 0.15s;
+    }
+    .channel-btn.active { border-color: #99CCEE; color: #99CCEE; }
+
+    /* Illustration section */
+    .illus-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
+    .illus-tab {
+      padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
+      cursor: pointer; background: #2a2a2a; color: #888; transition: all 0.15s;
+    }
+    .illus-tab.active { background: #444; color: #e0e0e0; }
+    .illus-panel { display: none; }
+    .illus-panel.active { display: block; }
+    .image-preview {
+      width: 100%; max-height: 80px; object-fit: contain; border-radius: 4px;
+      margin-top: 6px; background: #333;
+    }
+
+    /* Generate button */
+    .generate-btn {
+      width: 100%; padding: 10px; border: none; border-radius: 6px;
+      background: #FF9922; color: #fff; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s; margin-top: 4px;
+    }
+    .generate-btn:hover { background: #ffaa44; }
+    .generate-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+
+    /* Status / progress */
     .status {
-      background: #2a2a2a;
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-      min-height: 40px;
-      max-height: 240px;
-      overflow-y: auto;
+      background: #2a2a2a; border-radius: 8px; padding: 12px; margin-top: 10px;
+      max-height: 180px; overflow-y: auto; display: none;
     }
-    .status-item {
-      padding: 3px 0;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 12px;
-    }
-    .status-item .check { color: #4CAF50; }
-    .status-item .fail { color: #f44336; }
-    .status-item .loading { color: #FFB656; }
+    .status.visible { display: block; }
+    .status-item { padding: 3px 0; display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    .check { color: #4CAF50; } .fail { color: #f44336; } .loading { color: #FFB656; }
     .progress-bar {
-      width: 100%;
-      height: 6px;
-      background: #333;
-      border-radius: 3px;
-      overflow: hidden;
-      margin: 12px 0;
+      width: 100%; height: 6px; background: #333; border-radius: 3px;
+      overflow: hidden; margin-top: 10px; display: none;
     }
-    .progress-fill {
-      height: 100%;
-      background: #99CCEE;
-      border-radius: 3px;
-      transition: width 0.3s ease;
-      width: 0%;
+    .progress-bar.visible { display: block; }
+    .progress-fill { height: 100%; background: #99CCEE; border-radius: 3px; transition: width 0.3s ease; width: 0%; }
+    .done { color: #4CAF50; font-weight: 600; font-size: 14px; margin-top: 8px; }
+    .error-box {
+      color: #f44336; background: #2a1515; padding: 8px 12px;
+      border-radius: 6px; margin-top: 8px; font-size: 12px;
     }
-    .info {
-      font-size: 11px;
-      color: #888;
-      margin-top: 8px;
+    .close-btn {
+      background: #99CCEE; color: #111; border: none; padding: 8px 16px;
+      border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; margin-top: 8px;
     }
-    .error {
-      color: #f44336;
-      background: #2a1515;
-      padding: 8px 12px;
-      border-radius: 6px;
-      margin-top: 8px;
-    }
-    .done {
-      color: #4CAF50;
-      font-weight: 600;
-      font-size: 14px;
-    }
-    button {
-      background: #99CCEE;
-      color: #111;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-    button:hover { background: #b3d9f2; }
-    .badge {
-      display: inline-block;
-      padding: 2px 6px;
-      border-radius: 4px;
-      font-size: 10px;
-      font-weight: 600;
-      margin-left: 6px;
-    }
-    .badge-svg { background: #1a3a1a; color: #4CAF50; }
-    .badge-png { background: #3a2a1a; color: #FFB656; }
+    .count-label { font-size: 11px; color: #888; margin-left: 4px; }
+    .spinner { display: inline-block; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body>
-  <h2>Domo Banner Importer</h2>
-  <div class="status" id="status">
-    <div class="status-item">
-      <span class="loading">●</span>
-      <span>Connecting to local server...</span>
+  <h2>Domo Banner Generator</h2>
+
+  <div id="form-area">
+    <!-- ── 1. COPY ── -->
+    <div class="section">
+      <div class="section-header">
+        <label for="kg-input">Copy from Knowledge Graph</label>
+      </div>
+      <div style="display:flex; gap:6px; margin-bottom:8px;">
+        <input type="text" id="kg-input" placeholder="e.g. data integration, embedded analytics, BI" style="margin:0; flex:1;" />
+        <button class="sm-btn accent" id="kg-btn" onclick="suggestCopy()">Suggest</button>
+      </div>
+      <div class="suggestions" id="headline-suggestions"></div>
+      <div class="suggestions" id="cta-suggestions"></div>
     </div>
+
+    <div class="section">
+      <label for="headline">Headline</label>
+      <input type="text" id="headline" value="Connect all your data sources in minutes, not months" />
+      <label for="cta">CTA Button Text</label>
+      <input type="text" id="cta" value="LEARN MORE" />
+    </div>
+
+    <!-- ── 2. THEME ── -->
+    <div class="section">
+      <label>Theme</label>
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+
+    <!-- ── 3. CHANNELS ── -->
+    <div class="section">
+      <label>Channels</label>
+      <div class="channels">
+        <div class="channel-btn active" data-channel="linkedin" onclick="toggleChannel(this)">
+          LinkedIn <span class="count-label">(1)</span>
+        </div>
+        <div class="channel-btn active" data-channel="gdn" onclick="toggleChannel(this)">
+          GDN <span class="count-label">(11)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 4. ILLUSTRATION ── -->
+    <div class="section">
+      <label>Illustration</label>
+      <div class="illus-tabs">
+        <div class="illus-tab active" data-tab="existing" onclick="switchIllusTab('existing')">Existing</div>
+        <div class="illus-tab" data-tab="generate" onclick="switchIllusTab('generate')">AI Generate</div>
+      </div>
+      <div class="illus-panel active" id="panel-existing">
+        <select id="illustration"></select>
+      </div>
+      <div class="illus-panel" id="panel-generate">
+        <div style="display:flex; gap:6px;">
+          <input type="text" id="image-prompt" placeholder="e.g. modern analytics dashboard with charts" style="margin:0; flex:1;" />
+          <button class="sm-btn accent" id="img-btn" onclick="generateImage()">Generate</button>
+        </div>
+        <div id="image-preview-area"></div>
+      </div>
+    </div>
+
+    <!-- ── 5. GENERATE ── -->
+    <button class="generate-btn" id="generate-btn" onclick="generate()">Generate &amp; Import</button>
   </div>
-  <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+
+  <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress"></div></div>
+  <div class="status" id="status"></div>
   <div id="message"></div>
-  <div class="info">
-    Run <code>npm run serve-figma -- --dir di-svgs</code> first
-  </div>
 
   <script>
-    const SERVER = "http://localhost:8765";
-    const statusEl = document.getElementById("status");
-    const progressEl = document.getElementById("progress");
-    const messageEl = document.getElementById("message");
+    var SERVER = "http://localhost:8765";
+    var statusEl = document.getElementById("status");
+    var progressBar = document.getElementById("progress-bar");
+    var progressEl = document.getElementById("progress");
+    var messageEl = document.getElementById("message");
+    var genBtn = document.getElementById("generate-btn");
 
-    function setStatus(html) { statusEl.innerHTML = html; }
-    function addStatus(html) { statusEl.innerHTML += html; }
+    var selectedTheme = "dark";
+    var activeChannels = new Set(["linkedin", "gdn"]);
+    var generatedImageBase64 = null;
+    var useGeneratedImage = false;
 
-    // Listen for messages from plugin code
-    onmessage = (event) => {
-      const msg = event.data.pluginMessage;
-      if (!msg) return;
+    // ── Safe DOM helpers ──
+    function createStatusItem(icon, iconClass, text) {
+      var div = document.createElement("div");
+      div.className = "status-item";
+      var span1 = document.createElement("span");
+      span1.className = iconClass;
+      span1.textContent = icon;
+      var span2 = document.createElement("span");
+      span2.textContent = text;
+      div.appendChild(span1);
+      div.appendChild(span2);
+      return div;
+    }
 
-      if (msg.type === "progress") {
-        const pct = Math.round((msg.done / msg.total) * 100);
-        progressEl.style.width = pct + "%";
-        addStatus(
-          '<div class="status-item"><span class="check">✓</span><span>' +
-            msg.slug + " — created</span></div>"
-        );
-      }
+    function clearElement(el) {
+      while (el.firstChild) el.removeChild(el.firstChild);
+    }
 
-      if (msg.type === "error") {
-        addStatus(
-          '<div class="status-item"><span class="fail">✗</span><span>' +
-            msg.slug + ": " + msg.message + "</span></div>"
-        );
-      }
-
-      if (msg.type === "complete") {
-        progressEl.style.width = "100%";
-        messageEl.innerHTML =
-          '<p class="done">Done! Created ' + msg.count +
-          ' banners on page "' + msg.pageName + '"</p>' +
-          '<button onclick="parent.postMessage({ pluginMessage: { type: \'close\' } }, \'*\')">Close Plugin</button>';
-      }
-    };
-
-    async function run() {
+    // ── Theme grid (loaded from server) ──
+    async function loadThemes() {
+      var grid = document.getElementById("theme-grid");
       try {
-        // 1. Fetch manifest
-        setStatus(
-          '<div class="status-item"><span class="loading">●</span><span>Fetching manifest...</span></div>'
-        );
+        var res = await fetch(SERVER + "/api/themes");
+        var themesData = await res.json();
+        themesData.forEach(function(t) {
+          var swatch = document.createElement("div");
+          swatch.className = "theme-swatch" + (t.name === selectedTheme ? " active" : "");
+          swatch.dataset.theme = t.name;
+          swatch.onclick = function() { selectTheme(t.name); };
 
-        const manifestRes = await fetch(SERVER + "/manifest.json");
-        if (!manifestRes.ok) throw new Error("Failed to fetch manifest");
-        const manifest = await manifestRes.json();
-        const fileType = manifest.fileType || "png";
-        const badge = fileType === "svg"
-          ? '<span class="badge badge-svg">SVG</span>'
-          : '<span class="badge badge-png">PNG</span>';
+          var bar = document.createElement("div");
+          bar.className = "swatch-bar";
+          bar.style.background = t.bgColor;
+          bar.style.color = t.headlineColor;
+          bar.textContent = "Aa";
 
-        setStatus(
-          '<div class="status-item"><span class="check">✓</span><span>Found ' +
-            manifest.banners.length + " banners: \"" + manifest.pageName +
-            "\"" + badge + "</span></div>"
-        );
+          var dot = document.createElement("span");
+          dot.style.display = "inline-block";
+          dot.style.width = "8px";
+          dot.style.height = "8px";
+          dot.style.borderRadius = "50%";
+          dot.style.background = t.ctaBgColor;
+          dot.style.marginLeft = "4px";
+          bar.appendChild(dot);
 
-        // 2. Download each banner
-        const banners = [];
-        for (let i = 0; i < manifest.banners.length; i++) {
-          const b = manifest.banners[i];
-          addStatus(
-            '<div class="status-item"><span class="loading">●</span><span>Downloading ' +
-              b.slug + "...</span></div>"
-          );
+          var nameEl = document.createElement("div");
+          nameEl.textContent = t.name;
 
-          const fileRes = await fetch(SERVER + "/" + b.file);
-          if (!fileRes.ok) throw new Error("Failed to download " + b.file);
-
-          const bannerData = {
-            slug: b.slug,
-            width: b.width,
-            height: b.height,
-          };
-
-          if (fileType === "svg") {
-            // SVG: send as text string for createNodeFromSvg()
-            bannerData.svgContent = await fileRes.text();
-          } else {
-            // PNG: send as byte array for createImage()
-            const buffer = await fileRes.arrayBuffer();
-            bannerData.imageBytes = Array.from(new Uint8Array(buffer));
-          }
-
-          banners.push(bannerData);
-
-          const pct = Math.round(((i + 1) / manifest.banners.length) * 50);
-          progressEl.style.width = pct + "%";
-        }
-
-        // 3. Send to plugin code to create Figma nodes
-        setStatus(
-          '<div class="status-item"><span class="loading">●</span><span>Creating layers in Figma...</span></div>'
-        );
-        progressEl.style.width = "50%";
-
-        parent.postMessage(
-          {
-            pluginMessage: {
-              type: "create-banners",
-              pageName: manifest.pageName,
-              banners,
-            },
-          },
-          "*"
-        );
-      } catch (err) {
-        setStatus("");
-        messageEl.innerHTML =
-          '<div class="error">' +
-          "<strong>Connection failed</strong><br>" +
-          "Make sure the local server is running:<br>" +
-          "<code>npm run serve-figma -- --dir di-svgs</code><br><br>" +
-          "Error: " + err.message +
-          "</div>";
+          swatch.appendChild(bar);
+          swatch.appendChild(nameEl);
+          grid.appendChild(swatch);
+        });
+      } catch (e) {
+        // fallback
+        ["dark", "light"].forEach(function(name) {
+          var swatch = document.createElement("div");
+          swatch.className = "theme-swatch" + (name === selectedTheme ? " active" : "");
+          swatch.dataset.theme = name;
+          swatch.textContent = name;
+          swatch.onclick = function() { selectTheme(name); };
+          grid.appendChild(swatch);
+        });
       }
     }
 
-    run();
+    function selectTheme(name) {
+      selectedTheme = name;
+      document.querySelectorAll(".theme-swatch").forEach(function(el) {
+        el.classList.toggle("active", el.dataset.theme === name);
+      });
+    }
+
+    // ── Channels ──
+    function toggleChannel(el) {
+      var ch = el.dataset.channel;
+      if (activeChannels.has(ch)) {
+        activeChannels.delete(ch);
+        el.classList.remove("active");
+      } else {
+        activeChannels.add(ch);
+        el.classList.add("active");
+      }
+    }
+
+    // ── Illustrations ──
+    async function loadIllustrations() {
+      var selectEl = document.getElementById("illustration");
+      try {
+        var res = await fetch(SERVER + "/api/illustrations");
+        var files = await res.json();
+        files.forEach(function(f) {
+          var opt = document.createElement("option");
+          opt.value = f;
+          opt.textContent = f;
+          selectEl.appendChild(opt);
+        });
+      } catch (e) {
+        var opt = document.createElement("option");
+        opt.value = "illustration.png";
+        opt.textContent = "illustration.png";
+        selectEl.appendChild(opt);
+      }
+    }
+
+    function switchIllusTab(tab) {
+      document.querySelectorAll(".illus-tab").forEach(function(el) {
+        el.classList.toggle("active", el.dataset.tab === tab);
+      });
+      document.getElementById("panel-existing").classList.toggle("active", tab === "existing");
+      document.getElementById("panel-generate").classList.toggle("active", tab === "generate");
+      useGeneratedImage = (tab === "generate" && generatedImageBase64 !== null);
+    }
+
+    // ── KG Copy Suggestions ──
+    async function suggestCopy() {
+      var input = document.getElementById("kg-input").value.trim();
+      if (!input) return;
+
+      var btn = document.getElementById("kg-btn");
+      btn.disabled = true;
+      btn.textContent = "\u21BB";
+
+      try {
+        var res = await fetch(SERVER + "/api/copy", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ product: input }),
+        });
+        var data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        // Populate headline chips
+        var hlBox = document.getElementById("headline-suggestions");
+        clearElement(hlBox);
+        (data.headlines || []).forEach(function(h) {
+          var chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = h;
+          chip.title = h;
+          chip.onclick = function() {
+            document.getElementById("headline").value = h;
+          };
+          hlBox.appendChild(chip);
+        });
+
+        // Populate CTA chips
+        var ctaBox = document.getElementById("cta-suggestions");
+        clearElement(ctaBox);
+        (data.ctas || []).forEach(function(c) {
+          var chip = document.createElement("span");
+          chip.className = "chip";
+          chip.textContent = c;
+          chip.onclick = function() {
+            document.getElementById("cta").value = c;
+          };
+          ctaBox.appendChild(chip);
+        });
+      } catch (err) {
+        showError("KG error: " + err.message);
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Suggest";
+    }
+
+    // ── Gemini Image Generation ──
+    async function generateImage() {
+      var prompt = document.getElementById("image-prompt").value.trim();
+      if (!prompt) return;
+
+      var btn = document.getElementById("img-btn");
+      btn.disabled = true;
+      btn.textContent = "\u21BB";
+
+      var previewArea = document.getElementById("image-preview-area");
+      clearElement(previewArea);
+      var loadingMsg = document.createElement("div");
+      loadingMsg.style.cssText = "font-size:11px; color:#FFB656; padding:6px 0;";
+      loadingMsg.textContent = "Generating image with Gemini... (10\u201330s)";
+      previewArea.appendChild(loadingMsg);
+
+      try {
+        var res = await fetch(SERVER + "/api/generate-image", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ prompt: prompt }),
+        });
+        var data = await res.json();
+        if (data.error) throw new Error(data.error);
+
+        generatedImageBase64 = data.imageBase64;
+        useGeneratedImage = true;
+
+        clearElement(previewArea);
+        var img = document.createElement("img");
+        img.className = "image-preview";
+        img.src = "data:" + (data.mimeType || "image/png") + ";base64," + data.imageBase64;
+        img.alt = "Generated illustration";
+        previewArea.appendChild(img);
+
+        var info = document.createElement("div");
+        info.style.cssText = "font-size:10px; color:#4CAF50; padding:4px 0;";
+        info.textContent = "\u2713 Saved as " + data.filename + " \u2014 will be used for banners";
+        previewArea.appendChild(info);
+      } catch (err) {
+        clearElement(previewArea);
+        showError("Image generation failed: " + err.message);
+      }
+
+      btn.disabled = false;
+      btn.textContent = "Generate";
+    }
+
+    // ── Listen for messages from plugin code ──
+    onmessage = function(event) {
+      var msg = event.data.pluginMessage;
+      if (!msg) return;
+
+      if (msg.type === "progress") {
+        var pct = Math.round((msg.done / msg.total) * 100);
+        progressEl.style.width = pct + "%";
+        statusEl.appendChild(createStatusItem("\u2713", "check", msg.slug + " \u2014 created"));
+      }
+      if (msg.type === "error") {
+        statusEl.appendChild(createStatusItem("\u2717", "fail", msg.slug + ": " + msg.message));
+      }
+      if (msg.type === "complete") {
+        progressEl.style.width = "100%";
+        clearElement(messageEl);
+        var p = document.createElement("p");
+        p.className = "done";
+        p.textContent = "Done! Created " + msg.count + " banners on page \u201C" + msg.pageName + "\u201D";
+        messageEl.appendChild(p);
+
+        var closeBtn = document.createElement("button");
+        closeBtn.className = "close-btn";
+        closeBtn.textContent = "Close";
+        closeBtn.onclick = function() {
+          parent.postMessage({ pluginMessage: { type: "close" } }, "*");
+        };
+        messageEl.appendChild(closeBtn);
+
+        genBtn.disabled = false;
+        genBtn.textContent = "Generate & Import";
+      }
+    };
+
+    function showError(text) {
+      clearElement(messageEl);
+      var div = document.createElement("div");
+      div.className = "error-box";
+      div.textContent = text;
+      messageEl.appendChild(div);
+    }
+
+    // ── Generate & Import ──
+    async function generate() {
+      if (activeChannels.size === 0) { showError("Select at least one channel."); return; }
+      var headline = document.getElementById("headline").value.trim();
+      if (!headline) { showError("Enter a headline."); return; }
+
+      genBtn.disabled = true;
+      genBtn.textContent = "Generating...";
+      clearElement(messageEl);
+      clearElement(statusEl);
+      statusEl.appendChild(createStatusItem("\u25CF", "loading", "Generating SVGs on server..."));
+      statusEl.classList.add("visible");
+      progressBar.classList.add("visible");
+      progressEl.style.width = "10%";
+
+      try {
+        var payload = {
+          headline: headline,
+          cta: document.getElementById("cta").value.trim() || "LEARN MORE",
+          theme: selectedTheme,
+          channels: Array.from(activeChannels),
+          illustration: document.getElementById("illustration").value,
+        };
+
+        // If using AI-generated image, send the base64 directly
+        if (useGeneratedImage && generatedImageBase64) {
+          payload.imageBase64 = generatedImageBase64;
+        }
+
+        var res = await fetch(SERVER + "/api/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload),
+        });
+
+        if (!res.ok) {
+          var errData = await res.json();
+          throw new Error(errData.error || "Server error");
+        }
+
+        var data = await res.json();
+        progressEl.style.width = "50%";
+
+        clearElement(statusEl);
+        statusEl.appendChild(createStatusItem("\u2713", "check", "Generated " + data.banners.length + " banners"));
+        statusEl.appendChild(createStatusItem("\u25CF", "loading", "Creating layers in Figma..."));
+
+        parent.postMessage({
+          pluginMessage: {
+            type: "create-banners",
+            pageName: data.pageName,
+            banners: data.banners,
+          },
+        }, "*");
+      } catch (err) {
+        clearElement(statusEl);
+        statusEl.classList.remove("visible");
+        progressBar.classList.remove("visible");
+        showError("Generation failed: " + err.message);
+        genBtn.disabled = false;
+        genBtn.textContent = "Generate & Import";
+      }
+    }
+
+    // ── Init ──
+    loadThemes();
+    loadIllustrations();
   </script>
 </body>
 </html>

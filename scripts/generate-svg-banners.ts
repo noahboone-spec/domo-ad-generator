@@ -89,8 +89,9 @@ const layouts: LayoutDef[] = [
     width: 1200,
     height: 627,
     logo: { x: 80, y: 40, size: 80 },
-    headline: { x: 80, y: 180, width: 600, fontSize: 64 },
-    illustration: { x: -30, y: -47, width: 618, height: 757 },
+    headline: { x: 80, y: 160, width: 600, fontSize: 64 },
+    cta: { x: 80, y: 540, fontSize: 18 },
+    illustration: { x: 50, y: 80, width: 480, height: 468 },
     illustrationAnchor: "right",
   },
   {
@@ -266,11 +267,19 @@ function generateSVG(
   const ctaW = ctaTextWidth + ctaPadH * 2;
   const ctaH = layout.cta ? layout.cta.fontSize + ctaPadV * 2 : 0;
 
+  const illusRx = 12; // rounded corners for illustration frame
+
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${height}" viewBox="0 0 ${width} ${height}">
   <defs>
     <clipPath id="banner-clip">
       <rect width="${width}" height="${height}" />
     </clipPath>
+    <clipPath id="illus-clip">
+      <rect x="${illustrationX}" y="${illustrationY}" width="${illustration.width}" height="${illustration.height}" rx="${illusRx}" />
+    </clipPath>
+    <filter id="illus-shadow" x="-10%" y="-10%" width="130%" height="130%">
+      <feDropShadow dx="0" dy="4" stdDeviation="16" flood-color="#000000" flood-opacity="0.12" />
+    </filter>
   </defs>
 
   <!-- Background -->
@@ -281,7 +290,8 @@ function generateSVG(
   <g clip-path="url(#banner-clip)">
 
   <!-- Illustration -->
-  <g id="Illustration">
+  <g id="Illustration" filter="url(#illus-shadow)">
+    <rect x="${illustrationX}" y="${illustrationY}" width="${illustration.width}" height="${illustration.height}" rx="${illusRx}" fill="#FFFFFF" />
     <image
       x="${illustrationX}"
       y="${illustrationY}"
@@ -289,6 +299,7 @@ function generateSVG(
       height="${illustration.height}"
       href="data:image/png;base64,${illustrationBase64}"
       preserveAspectRatio="xMidYMid slice"
+      clip-path="url(#illus-clip)"
     />
   </g>
 

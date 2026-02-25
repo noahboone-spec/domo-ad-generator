@@ -6,6 +6,8 @@
   "ui": "ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["http://localhost:8765"]
+    "allowedDomains": ["http://localhost:8765"],
+    "devAllowedDomains": ["http://localhost:8765"],
+    "reasoning": "Connects to a local development server to fetch generated SVG and PNG banner assets for import into Figma."
   }
 }

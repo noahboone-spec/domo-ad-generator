@@ -13,6 +13,8 @@
     "generate-svgs": "npx tsx scripts/generate-svg-banners.ts"
   },
   "dependencies": {
+    "@google/genai": "^1.42.0",
+    "dotenv": "^17.3.1",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
