@@ -9,7 +9,8 @@
     "lint": "eslint",
     "render": "npx tsx scripts/render-all.ts",
     "push-figma": "npx tsx scripts/push-to-figma.ts",
-    "serve-figma": "npx tsx scripts/serve-for-figma.ts"
+    "serve-figma": "npx tsx scripts/serve-for-figma.ts",
+    "generate-svgs": "npx tsx scripts/generate-svg-banners.ts"
   },
   "dependencies": {
     "next": "16.1.6",
