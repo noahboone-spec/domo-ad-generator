@@ -14,6 +14,14 @@
  *   npx tsx scripts/generate-svg-banners.ts
  *   npx tsx scripts/generate-svg-banners.ts --headline "Custom headline" --cta "GET STARTED"
  *   npx tsx scripts/generate-svg-banners.ts --headline "Connect your data" --prefix di
+ *   npx tsx scripts/generate-svg-banners.ts --theme light --illustration embed-illustration.png --prefix embed-svgs
+ *
+ * Options:
+ *   --headline       Custom headline text
+ *   --cta            CTA button text (default: LEARN MORE)
+ *   --theme          Theme: "dark" (default) or "light"
+ *   --illustration   Filename in public/assets/ (default: illustration.png)
+ *   --prefix         Output subdirectory name (default: svg-banners)
  */
 import fs from "fs";
 import path from "path";
@@ -22,16 +30,37 @@ const PROJECT_ROOT = path.resolve(__dirname, "..");
 const OUTPUT_DIR = path.resolve(PROJECT_ROOT, "output");
 
 // ──────────────────────────────────────────────
-// Theme (matching default dark theme)
+// Themes
 // ──────────────────────────────────────────────
-const theme = {
-  bgColor: "#111111",
-  headlineColor: "#99CCEE",
-  headlineFontWeight: 800,
-  ctaBgColor: "#FFB656",
-  ctaTextColor: "#111111",
-  ctaBorderRadius: 3,
-  logoBgColor: "#99CCEE",
+interface ThemeConfig {
+  bgColor: string;
+  headlineColor: string;
+  headlineFontWeight: number;
+  ctaBgColor: string;
+  ctaTextColor: string;
+  ctaBorderRadius: number;
+  logoBgColor: string;
+}
+
+const themes: Record<string, ThemeConfig> = {
+  dark: {
+    bgColor: "#111111",
+    headlineColor: "#99CCEE",
+    headlineFontWeight: 800,
+    ctaBgColor: "#FFB656",
+    ctaTextColor: "#111111",
+    ctaBorderRadius: 3,
+    logoBgColor: "#99CCEE",
+  },
+  light: {
+    bgColor: "#F1F6FA",
+    headlineColor: "#3F454D",
+    headlineFontWeight: 800,
+    ctaBgColor: "#FF9922",
+    ctaTextColor: "#FFFFFF",
+    ctaBorderRadius: 3,
+    logoBgColor: "#99CCEE",
+  },
 };
 
 // ──────────────────────────────────────────────
@@ -211,7 +240,8 @@ function generateSVG(
   layout: LayoutDef,
   headline: string,
   cta: string,
-  illustrationBase64: string
+  illustrationBase64: string,
+  theme: ThemeConfig
 ): string {
   const { width, height, logo, illustration } = layout;
   const hl = layout.headline;
@@ -356,16 +386,30 @@ function main() {
   const headline =
     opts.headline ||
     "Connect all your data sources in minutes, not months";
-  const cta = opts.cta || "START FREE";
+  const cta = opts.cta || "LEARN MORE";
   const prefix = opts.prefix || "svg-banners";
+  const themeName = opts.theme || "dark";
+  const illustrationFile = opts.illustration || "illustration.png";
+
+  // Select theme
+  const theme = themes[themeName];
+  if (!theme) {
+    console.error(`Unknown theme: "${themeName}". Available: ${Object.keys(themes).join(", ")}`);
+    process.exit(1);
+  }
 
   // Read and base64 encode illustration
   const illustrationPath = path.join(
     PROJECT_ROOT,
-    "public/assets/illustration.png"
+    "public/assets",
+    illustrationFile
   );
   if (!fs.existsSync(illustrationPath)) {
     console.error(`Illustration not found: ${illustrationPath}`);
+    console.error(`Available illustrations in public/assets/:`);
+    const assets = fs.readdirSync(path.join(PROJECT_ROOT, "public/assets"))
+      .filter((f) => f.endsWith(".png") || f.endsWith(".jpg") || f.endsWith(".svg"));
+    assets.forEach((a) => console.error(`  - ${a}`));
     process.exit(1);
   }
   const illustrationBase64 = fs.readFileSync(illustrationPath).toString("base64");
@@ -377,19 +421,21 @@ function main() {
   }
 
   console.log(`Generating ${layouts.length} SVG banners`);
-  console.log(`Headline: "${headline}"`);
-  console.log(`CTA: "${cta}"`);
-  console.log(`Output: output/${prefix}/\n`);
+  console.log(`Theme:        ${themeName} (bg: ${theme.bgColor})`);
+  console.log(`Headline:     "${headline}"`);
+  console.log(`CTA:          "${cta}"`);
+  console.log(`Illustration: ${illustrationFile}`);
+  console.log(`Output:       output/${prefix}/\n`);
 
   for (const layout of layouts) {
-    const svg = generateSVG(layout, headline, cta, illustrationBase64);
+    const svg = generateSVG(layout, headline, cta, illustrationBase64, theme);
     const outputPath = path.join(outputDir, `${layout.slug}.svg`);
     fs.writeFileSync(outputPath, svg);
     console.log(`  ✓ ${layout.slug}.svg (${layout.width}x${layout.height})`);
   }
 
   console.log(`\nDone! ${layouts.length} SVGs written to output/${prefix}/`);
-  console.log("Drag these into Figma — each element is a separate editable layer.");
+  console.log("Drag these into Figma or run: npm run serve-figma -- --dir " + prefix);
 }
 
 main();
