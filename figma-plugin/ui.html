@@ -2,183 +2,265 @@
 <html>
 <head>
   <style>
+    @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap');
+
+    :root {
+      --bg-primary: #1E1E1E;
+      --bg-surface: #2A2A2A;
+      --bg-elevated: #333333;
+      --bg-hover: #444444;
+      --text-primary: #E0E0E0;
+      --text-secondary: #AAAAAA;
+      --text-muted: #888888;
+      --accent-blue: #99CCEE;
+      --accent-orange: #FF9922;
+      --accent-orange-hover: #FFAA44;
+      --border: #444444;
+      --border-active: #99CCEE;
+      --success: #4CAF50;
+      --error: #F44336;
+      --warning: #FFB656;
+    }
+
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      padding: 16px;
-      background: #1e1e1e;
-      color: #e0e0e0;
-      font-size: 13px;
+      font-family: 'Open Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 12px;
+      padding: 20px;
+      overflow-y: auto;
     }
-    h2 { font-size: 16px; font-weight: 600; margin-bottom: 14px; color: #99CCEE; }
-    label {
-      display: block; font-size: 11px; font-weight: 600; color: #aaa;
-      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;
-    }
-    input[type="text"], textarea {
-      width: 100%; padding: 8px 10px; border: 1px solid #444; border-radius: 6px;
-      background: #2a2a2a; color: #e0e0e0; font-size: 13px; margin-bottom: 10px;
-      font-family: inherit;
-    }
-    input[type="text"]:focus, textarea:focus { outline: none; border-color: #99CCEE; }
-    textarea { resize: vertical; min-height: 36px; }
-    select {
-      width: 100%; padding: 8px 10px; border: 1px solid #444; border-radius: 6px;
-      background: #2a2a2a; color: #e0e0e0; font-size: 13px; margin-bottom: 10px;
-    }
-    select:focus { outline: none; border-color: #99CCEE; }
 
-    /* Section dividers */
+    /* ── Header ── */
+    .header {
+      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
+    }
+    .header-logo {
+      width: 28px; height: 28px; background: var(--accent-blue);
+      border-radius: 4px; flex-shrink: 0;
+    }
+    .header-title {
+      font-size: 16px; font-weight: 700; color: var(--accent-blue);
+    }
+
+    /* ── Section labels ── */
+    .label {
+      font-size: 10px; font-weight: 600; color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;
+    }
     .section { margin-bottom: 14px; }
-    .section-header {
-      display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 6px;
-    }
 
-    /* Small action buttons */
+    /* ── Inputs ── */
+    input[type="text"], select {
+      width: 100%; height: 34px; padding: 0 10px;
+      background: var(--bg-surface); color: var(--text-primary);
+      border: 1px solid var(--border); border-radius: 6px;
+      font-family: inherit; font-size: 12px; outline: none;
+    }
+    input[type="text"]:focus, select:focus {
+      border-color: var(--accent-blue);
+    }
+    input[type="text"]::placeholder { color: #666; }
+
+    /* ── Small action buttons ── */
     .sm-btn {
-      padding: 4px 10px; border: 1px solid #555; border-radius: 4px;
-      background: #333; color: #ccc; font-size: 11px; font-weight: 600;
-      cursor: pointer; transition: all 0.15s;
+      height: 34px; padding: 0 14px; border: none; border-radius: 6px;
+      font-family: inherit; font-size: 11px; font-weight: 700;
+      cursor: pointer; transition: all 0.15s; white-space: nowrap;
     }
-    .sm-btn:hover { background: #444; border-color: #99CCEE; color: #99CCEE; }
-    .sm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .sm-btn.accent { background: #99CCEE; color: #111; border-color: #99CCEE; }
+    .sm-btn.accent {
+      background: var(--accent-blue); color: #111;
+    }
     .sm-btn.accent:hover { background: #b3d9f2; }
+    .sm-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    /* Suggestion chips */
-    .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+    /* ── Inline row ── */
+    .inline-row { display: flex; gap: 6px; }
+    .inline-row .flex-1 { flex: 1; }
+
+    /* ── Suggestion chips ── */
+    .suggestions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; min-height: 0; }
     .chip {
-      padding: 4px 10px; border-radius: 12px; font-size: 11px;
-      background: #2a2a2a; border: 1px solid #444; cursor: pointer;
+      height: 24px; padding: 0 10px; display: inline-flex; align-items: center;
+      background: var(--bg-surface); border: 1px solid var(--border); border-radius: 12px;
+      font-size: 10px; color: var(--text-primary); cursor: pointer;
       transition: all 0.15s; max-width: 100%; overflow: hidden;
       text-overflow: ellipsis; white-space: nowrap;
     }
-    .chip:hover { border-color: #99CCEE; color: #99CCEE; }
+    .chip:hover { border-color: var(--accent-blue); color: var(--accent-blue); }
 
-    /* Theme grid */
+    /* ── Theme grid ── */
     .theme-grid {
-      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
-      margin-bottom: 12px;
+      display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px;
     }
     .theme-swatch {
-      padding: 6px; border: 2px solid #444; border-radius: 6px;
-      cursor: pointer; text-align: center; font-size: 10px; font-weight: 600;
-      transition: all 0.15s; text-transform: capitalize;
+      border: 2px solid var(--border); border-radius: 6px;
+      cursor: pointer; overflow: hidden; transition: all 0.15s;
     }
-    .theme-swatch.active { border-color: #99CCEE; }
-    .theme-swatch .swatch-bar {
-      height: 18px; border-radius: 3px; margin-bottom: 4px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 8px; font-weight: 800; letter-spacing: 0.5px;
+    .theme-swatch.active { border-color: var(--border-active); }
+    .theme-swatch:hover { border-color: var(--accent-blue); }
+    .swatch-bar {
+      height: 28px; display: flex; align-items: center; justify-content: center; gap: 3px;
+      font-family: 'Open Sans', sans-serif; font-size: 9px; font-weight: 800;
+    }
+    .swatch-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .swatch-name {
+      background: var(--bg-surface); text-align: center; padding: 4px 0;
+      font-size: 9px; font-weight: 600; color: var(--text-primary);
     }
 
-    /* Channels */
-    .channels { display: flex; gap: 8px; margin-bottom: 12px; }
-    .channel-btn {
-      flex: 1; padding: 8px; border: 2px solid #444; border-radius: 6px;
-      cursor: pointer; text-align: center; font-size: 12px; font-weight: 600;
-      color: #aaa; transition: all 0.15s;
+    /* ── Toggle buttons (channels, placement) ── */
+    .options-row { display: flex; gap: 16px; }
+    .options-col { flex: 1; }
+    .toggle-group { display: flex; gap: 6px; }
+    .toggle-btn {
+      flex: 1; height: 34px; display: flex; align-items: center; justify-content: center;
+      gap: 4px; border: 2px solid var(--border); border-radius: 6px;
+      font-family: inherit; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); background: transparent; cursor: pointer;
+      transition: all 0.15s;
     }
-    .channel-btn.active { border-color: #99CCEE; color: #99CCEE; }
+    .toggle-btn.active {
+      border-color: var(--border-active); color: var(--accent-blue);
+    }
+    .toggle-btn:hover { border-color: var(--accent-blue); }
+    .toggle-btn .count { font-size: 10px; color: var(--text-muted); font-weight: 400; }
 
-    /* Illustration section */
+    /* ── Illustration tabs ── */
     .illus-tabs { display: flex; gap: 4px; margin-bottom: 8px; }
     .illus-tab {
-      padding: 4px 10px; border-radius: 4px; font-size: 11px; font-weight: 600;
-      cursor: pointer; background: #2a2a2a; color: #888; transition: all 0.15s;
+      height: 26px; padding: 0 10px; display: flex; align-items: center;
+      border-radius: 4px; font-size: 11px; font-weight: 600;
+      color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+      background: transparent;
     }
-    .illus-tab.active { background: #444; color: #e0e0e0; }
+    .illus-tab.active { background: var(--bg-elevated); color: var(--text-primary); }
     .illus-panel { display: none; }
     .illus-panel.active { display: block; }
     .image-preview {
       width: 100%; max-height: 80px; object-fit: contain; border-radius: 4px;
-      margin-top: 6px; background: #333;
+      margin-top: 6px; background: var(--bg-surface);
     }
 
-    /* Generate button */
+    /* ── Divider ── */
+    .divider { height: 1px; background: var(--border); margin: 2px 0; }
+
+    /* ── Generate button ── */
     .generate-btn {
-      width: 100%; padding: 10px; border: none; border-radius: 6px;
-      background: #FF9922; color: #fff; font-size: 14px; font-weight: 700;
-      cursor: pointer; transition: background 0.15s; margin-top: 4px;
+      width: 100%; height: 42px; border: none; border-radius: 6px;
+      background: var(--accent-orange); color: #fff;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: background 0.15s;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    .generate-btn:hover { background: #ffaa44; }
+    .generate-btn:hover { background: var(--accent-orange-hover); }
     .generate-btn:disabled { background: #555; color: #888; cursor: not-allowed; }
+    .generate-btn svg { width: 16px; height: 16px; }
 
-    /* Status / progress */
+    /* ── Status area ── */
     .status {
-      background: #2a2a2a; border-radius: 8px; padding: 12px; margin-top: 10px;
-      max-height: 180px; overflow-y: auto; display: none;
+      background: var(--bg-surface); border-radius: 8px; padding: 12px;
+      margin-top: 12px; display: none;
     }
     .status.visible { display: block; }
-    .status-item { padding: 3px 0; display: flex; align-items: center; gap: 8px; font-size: 12px; }
-    .check { color: #4CAF50; } .fail { color: #f44336; } .loading { color: #FFB656; }
+    .status-item {
+      display: flex; align-items: center; gap: 8px; padding: 3px 0; font-size: 11px;
+    }
+    .status-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .status-dot.success { background: var(--success); }
+    .status-dot.error { background: var(--error); }
+    .status-dot.loading { background: var(--warning); }
     .progress-bar {
-      width: 100%; height: 6px; background: #333; border-radius: 3px;
-      overflow: hidden; margin-top: 10px; display: none;
+      width: 100%; height: 4px; background: var(--bg-elevated);
+      border-radius: 2px; overflow: hidden; margin-top: 8px; display: none;
     }
     .progress-bar.visible { display: block; }
-    .progress-fill { height: 100%; background: #99CCEE; border-radius: 3px; transition: width 0.3s ease; width: 0%; }
-    .done { color: #4CAF50; font-weight: 600; font-size: 14px; margin-top: 8px; }
+    .progress-fill {
+      height: 100%; background: var(--accent-blue); border-radius: 2px;
+      transition: width 0.3s ease; width: 0%;
+    }
+    .done-msg {
+      color: var(--success); font-weight: 600; font-size: 13px; margin-top: 8px;
+    }
     .error-box {
-      color: #f44336; background: #2a1515; padding: 8px 12px;
-      border-radius: 6px; margin-top: 8px; font-size: 12px;
+      color: var(--error); background: #2a1515; padding: 8px 12px;
+      border-radius: 6px; margin-top: 8px; font-size: 11px;
     }
     .close-btn {
-      background: #99CCEE; color: #111; border: none; padding: 8px 16px;
-      border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; margin-top: 8px;
+      background: var(--accent-blue); color: #111; border: none;
+      padding: 8px 16px; border-radius: 6px; cursor: pointer;
+      font-family: inherit; font-weight: 600; font-size: 12px; margin-top: 8px;
     }
-    .count-label { font-size: 11px; color: #888; margin-left: 4px; }
-    .spinner { display: inline-block; animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
+    .close-btn:hover { background: #b3d9f2; }
   </style>
 </head>
 <body>
-  <h2>Domo Banner Generator</h2>
+  <!-- ── Header ── -->
+  <div class="header">
+    <div class="header-logo"></div>
+    <div class="header-title">Domo Banner Generator</div>
+  </div>
 
   <div id="form-area">
-    <!-- ── 1. COPY ── -->
+    <!-- ── 1. KG Copy ── -->
     <div class="section">
-      <div class="section-header">
-        <label for="kg-input">Copy from Knowledge Graph</label>
-      </div>
-      <div style="display:flex; gap:6px; margin-bottom:8px;">
-        <input type="text" id="kg-input" placeholder="e.g. data integration, embedded analytics, BI" style="margin:0; flex:1;" />
+      <div class="label">Copy from Knowledge Graph</div>
+      <div class="inline-row">
+        <input type="text" id="kg-input" class="flex-1" placeholder="e.g. data integration, embedded analytics" />
         <button class="sm-btn accent" id="kg-btn" onclick="suggestCopy()">Suggest</button>
       </div>
       <div class="suggestions" id="headline-suggestions"></div>
       <div class="suggestions" id="cta-suggestions"></div>
     </div>
 
+    <!-- ── 2. Headline & CTA ── -->
     <div class="section">
-      <label for="headline">Headline</label>
+      <div class="label">Headline</div>
       <input type="text" id="headline" value="Connect all your data sources in minutes, not months" />
-      <label for="cta">CTA Button Text</label>
+    </div>
+    <div class="section">
+      <div class="label">CTA Button</div>
       <input type="text" id="cta" value="LEARN MORE" />
     </div>
 
-    <!-- ── 2. THEME ── -->
+    <!-- ── 3. Theme ── -->
     <div class="section">
-      <label>Theme</label>
+      <div class="label">Theme</div>
       <div class="theme-grid" id="theme-grid"></div>
     </div>
 
-    <!-- ── 3. CHANNELS ── -->
+    <!-- ── 4. Channels & Placement ── -->
     <div class="section">
-      <label>Channels</label>
-      <div class="channels">
-        <div class="channel-btn active" data-channel="linkedin" onclick="toggleChannel(this)">
-          LinkedIn <span class="count-label">(1)</span>
+      <div class="options-row">
+        <div class="options-col">
+          <div class="label">Channels</div>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-channel="linkedin" onclick="toggleChannel(this)">
+              LinkedIn <span class="count">(1)</span>
+            </button>
+            <button class="toggle-btn active" data-channel="gdn" onclick="toggleChannel(this)">
+              GDN <span class="count">(11)</span>
+            </button>
+          </div>
         </div>
-        <div class="channel-btn active" data-channel="gdn" onclick="toggleChannel(this)">
-          GDN <span class="count-label">(11)</span>
+        <div class="options-col">
+          <div class="label">Page</div>
+          <div class="toggle-group">
+            <button class="toggle-btn active" data-placement="current" onclick="togglePlacement(this)">Current</button>
+            <button class="toggle-btn" data-placement="new" onclick="togglePlacement(this)">New</button>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- ── 4. ILLUSTRATION ── -->
+    <!-- ── 5. Illustration ── -->
     <div class="section">
-      <label>Illustration</label>
+      <div class="label">Illustration</div>
       <div class="illus-tabs">
         <div class="illus-tab active" data-tab="existing" onclick="switchIllusTab('existing')">Existing</div>
         <div class="illus-tab" data-tab="generate" onclick="switchIllusTab('generate')">AI Generate</div>
@@ -187,29 +269,22 @@
         <select id="illustration"></select>
       </div>
       <div class="illus-panel" id="panel-generate">
-        <div style="display:flex; gap:6px;">
-          <input type="text" id="image-prompt" placeholder="e.g. modern analytics dashboard with charts" style="margin:0; flex:1;" />
+        <div class="inline-row">
+          <input type="text" id="image-prompt" class="flex-1" placeholder="e.g. modern analytics dashboard with charts" />
           <button class="sm-btn accent" id="img-btn" onclick="generateImage()">Generate</button>
         </div>
         <div id="image-preview-area"></div>
       </div>
     </div>
 
-    <!-- ── 5. PLACEMENT ── -->
-    <div class="section">
-      <label>Page Placement</label>
-      <div class="channels">
-        <div class="channel-btn active" data-placement="current" onclick="togglePlacement(this)">
-          Current Page
-        </div>
-        <div class="channel-btn" data-placement="new" onclick="togglePlacement(this)">
-          New Page
-        </div>
-      </div>
-    </div>
+    <!-- ── Divider ── -->
+    <div class="divider"></div>
 
-    <!-- ── 6. GENERATE ── -->
-    <button class="generate-btn" id="generate-btn" onclick="generate()">Generate &amp; Import</button>
+    <!-- ── 6. Generate Button ── -->
+    <button class="generate-btn" id="generate-btn" onclick="generate()" style="margin-top: 12px;">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+      Generate &amp; Import
+    </button>
   </div>
 
   <div class="progress-bar" id="progress-bar"><div class="progress-fill" id="progress"></div></div>
@@ -231,16 +306,15 @@
     var useCurrentPage = true;
 
     // ── Safe DOM helpers ──
-    function createStatusItem(icon, iconClass, text) {
+    function createStatusItem(dotClass, text) {
       var div = document.createElement("div");
       div.className = "status-item";
-      var span1 = document.createElement("span");
-      span1.className = iconClass;
-      span1.textContent = icon;
-      var span2 = document.createElement("span");
-      span2.textContent = text;
-      div.appendChild(span1);
-      div.appendChild(span2);
+      var dot = document.createElement("span");
+      dot.className = "status-dot " + dotClass;
+      var span = document.createElement("span");
+      span.textContent = text;
+      div.appendChild(dot);
+      div.appendChild(span);
       return div;
     }
 
@@ -248,7 +322,7 @@
       while (el.firstChild) el.removeChild(el.firstChild);
     }
 
-    // ── Theme grid (loaded from server) ──
+    // ── Theme grid ──
     async function loadThemes() {
       var grid = document.getElementById("theme-grid");
       try {
@@ -267,23 +341,19 @@
           bar.textContent = "Aa";
 
           var dot = document.createElement("span");
-          dot.style.display = "inline-block";
-          dot.style.width = "8px";
-          dot.style.height = "8px";
-          dot.style.borderRadius = "50%";
+          dot.className = "swatch-dot";
           dot.style.background = t.ctaBgColor;
-          dot.style.marginLeft = "4px";
           bar.appendChild(dot);
 
-          var nameEl = document.createElement("div");
-          nameEl.textContent = t.name;
+          var name = document.createElement("div");
+          name.className = "swatch-name";
+          name.textContent = t.name;
 
           swatch.appendChild(bar);
-          swatch.appendChild(nameEl);
+          swatch.appendChild(name);
           grid.appendChild(swatch);
         });
       } catch (e) {
-        // fallback
         ["dark", "light"].forEach(function(name) {
           var swatch = document.createElement("div");
           swatch.className = "theme-swatch" + (name === selectedTheme ? " active" : "");
@@ -370,7 +440,6 @@
         var data = await res.json();
         if (data.error) throw new Error(data.error);
 
-        // Populate headline chips
         var hlBox = document.getElementById("headline-suggestions");
         clearElement(hlBox);
         (data.headlines || []).forEach(function(h) {
@@ -384,7 +453,6 @@
           hlBox.appendChild(chip);
         });
 
-        // Populate CTA chips
         var ctaBox = document.getElementById("cta-suggestions");
         clearElement(ctaBox);
         (data.ctas || []).forEach(function(c) {
@@ -416,7 +484,7 @@
       var previewArea = document.getElementById("image-preview-area");
       clearElement(previewArea);
       var loadingMsg = document.createElement("div");
-      loadingMsg.style.cssText = "font-size:11px; color:#FFB656; padding:6px 0;";
+      loadingMsg.style.cssText = "font-size:11px; color:var(--warning); padding:6px 0;";
       loadingMsg.textContent = "Generating image with Gemini... (10\u201330s)";
       previewArea.appendChild(loadingMsg);
 
@@ -440,7 +508,7 @@
         previewArea.appendChild(img);
 
         var info = document.createElement("div");
-        info.style.cssText = "font-size:10px; color:#4CAF50; padding:4px 0;";
+        info.style.cssText = "font-size:10px; color:var(--success); padding:4px 0;";
         info.textContent = "\u2713 Saved as " + data.filename + " \u2014 will be used for banners";
         previewArea.appendChild(info);
       } catch (err) {
@@ -452,7 +520,7 @@
       btn.textContent = "Generate";
     }
 
-    // ── Listen for messages from plugin code ──
+    // ── Messages from plugin code ──
     onmessage = function(event) {
       var msg = event.data.pluginMessage;
       if (!msg) return;
@@ -460,30 +528,42 @@
       if (msg.type === "progress") {
         var pct = Math.round((msg.done / msg.total) * 100);
         progressEl.style.width = pct + "%";
-        statusEl.appendChild(createStatusItem("\u2713", "check", msg.slug + " \u2014 created"));
+        statusEl.appendChild(createStatusItem("success", msg.slug + " \u2014 created"));
       }
       if (msg.type === "error") {
-        statusEl.appendChild(createStatusItem("\u2717", "fail", msg.slug + ": " + msg.message));
+        statusEl.appendChild(createStatusItem("error", msg.slug + ": " + msg.message));
       }
       if (msg.type === "complete") {
         progressEl.style.width = "100%";
         clearElement(messageEl);
         var p = document.createElement("p");
-        p.className = "done";
+        p.className = "done-msg";
         var pageDesc = msg.usedCurrentPage ? "current page" : "page \u201C" + msg.pageName + "\u201D";
-        p.textContent = "Done! Created " + msg.count + " banners on " + pageDesc;
+        p.textContent = "\u2713 Done! Created " + msg.count + " banners on " + pageDesc;
         messageEl.appendChild(p);
 
         var closeBtn = document.createElement("button");
         closeBtn.className = "close-btn";
-        closeBtn.textContent = "Close";
+        closeBtn.textContent = "Close Plugin";
         closeBtn.onclick = function() {
           parent.postMessage({ pluginMessage: { type: "close" } }, "*");
         };
         messageEl.appendChild(closeBtn);
 
         genBtn.disabled = false;
-        genBtn.textContent = "Generate & Import";
+        genBtn.textContent = "";
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+        svg.setAttribute("stroke", "currentColor");
+        svg.setAttribute("stroke-width", "2");
+        svg.setAttribute("stroke-linecap", "round");
+        svg.setAttribute("stroke-linejoin", "round");
+        var polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        polygon.setAttribute("points", "13 2 3 14 12 14 11 22 21 10 12 10 13 2");
+        svg.appendChild(polygon);
+        genBtn.appendChild(svg);
+        genBtn.appendChild(document.createTextNode(" Generate & Import"));
       }
     };
 
@@ -505,7 +585,7 @@
       genBtn.textContent = "Generating...";
       clearElement(messageEl);
       clearElement(statusEl);
-      statusEl.appendChild(createStatusItem("\u25CF", "loading", "Generating SVGs on server..."));
+      statusEl.appendChild(createStatusItem("loading", "Generating SVGs on server..."));
       statusEl.classList.add("visible");
       progressBar.classList.add("visible");
       progressEl.style.width = "10%";
@@ -519,7 +599,6 @@
           illustration: document.getElementById("illustration").value,
         };
 
-        // If using AI-generated image, send the base64 directly
         if (useGeneratedImage && generatedImageBase64) {
           payload.imageBase64 = generatedImageBase64;
         }
@@ -539,8 +618,8 @@
         progressEl.style.width = "50%";
 
         clearElement(statusEl);
-        statusEl.appendChild(createStatusItem("\u2713", "check", "Generated " + data.banners.length + " banners"));
-        statusEl.appendChild(createStatusItem("\u25CF", "loading", "Creating layers in Figma..."));
+        statusEl.appendChild(createStatusItem("success", "Generated " + data.banners.length + " banners"));
+        statusEl.appendChild(createStatusItem("loading", "Creating layers in Figma..."));
 
         parent.postMessage({
           pluginMessage: {
@@ -556,7 +635,19 @@
         progressBar.classList.remove("visible");
         showError("Generation failed: " + err.message);
         genBtn.disabled = false;
-        genBtn.textContent = "Generate & Import";
+        genBtn.textContent = "";
+        var svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+        svg.setAttribute("viewBox", "0 0 24 24");
+        svg.setAttribute("fill", "none");
+        svg.setAttribute("stroke", "currentColor");
+        svg.setAttribute("stroke-width", "2");
+        svg.setAttribute("stroke-linecap", "round");
+        svg.setAttribute("stroke-linejoin", "round");
+        var polygon = document.createElementNS("http://www.w3.org/2000/svg", "polygon");
+        polygon.setAttribute("points", "13 2 3 14 12 14 11 22 21 10 12 10 13 2");
+        svg.appendChild(polygon);
+        genBtn.appendChild(svg);
+        genBtn.appendChild(document.createTextNode(" Generate & Import"));
       }
     }
 

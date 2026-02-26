@@ -13,7 +13,7 @@
  * 3. This code creates editable Figma nodes from each SVG
  */
 
-figma.showUI(__html__, { width: 450, height: 460 });
+figma.showUI(__html__, { width: 450, height: 580 });
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === "create-banners") {

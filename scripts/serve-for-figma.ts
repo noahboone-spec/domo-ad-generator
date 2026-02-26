@@ -27,6 +27,7 @@ import fs from "fs";
 import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
+import sharp from "sharp";
 
 // Load API keys: env vars first (Cloud Run), fallback to toolkit .env (local dev)
 if (!process.env.GEMINI_API_KEY) {
@@ -251,6 +252,15 @@ function wrapText(text: string, maxWidth: number, fontSize: number): string[] {
   }
   if (currentLine) lines.push(currentLine);
   return lines;
+}
+
+async function resizeImageForLayout(base64: string, width: number, height: number): Promise<string> {
+  const buffer = Buffer.from(base64, "base64");
+  const resized = await sharp(buffer)
+    .resize(width, height, { fit: "cover" })
+    .png({ compressionLevel: 8 })
+    .toBuffer();
+  return resized.toString("base64");
 }
 
 function escapeXml(str: string): string {
@@ -622,12 +632,20 @@ const server = http.createServer(async (req, res) => {
       }
 
       const selectedLayouts = layouts.filter((l) => channels.includes(l.channel));
-      const banners = selectedLayouts.map((layout) => ({
-        slug: layout.slug,
-        width: layout.width,
-        height: layout.height,
-        svgContent: generateSVG(layout, headline, cta, illustrationBase64, theme),
-      }));
+      const banners = [];
+      for (const layout of selectedLayouts) {
+        const resizedBase64 = await resizeImageForLayout(
+          illustrationBase64,
+          layout.illustration.width,
+          layout.illustration.height
+        );
+        banners.push({
+          slug: layout.slug,
+          width: layout.width,
+          height: layout.height,
+          svgContent: generateSVG(layout, headline, cta, resizedBase64, theme),
+        });
+      }
 
       const pageName = `${headline.slice(0, 40)}${headline.length > 40 ? "..." : ""} — ${themeName}`;
       sendJson(res, { pageName, banners });
