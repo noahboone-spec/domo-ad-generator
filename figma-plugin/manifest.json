@@ -6,8 +6,8 @@
   "ui": "ui.html",
   "editorType": ["figma"],
   "networkAccess": {
-    "allowedDomains": ["http://localhost:8765"],
-    "devAllowedDomains": ["http://localhost:8765"],
-    "reasoning": "Connects to a local development server to fetch generated SVG and PNG banner assets for import into Figma."
+    "allowedDomains": ["https://domo-banner-server-1053548598846.us-central1.run.app"],
+    "devAllowedDomains": ["http://localhost:8765", "https://domo-banner-server-1053548598846.us-central1.run.app"],
+    "reasoning": "Connects to the Domo banner generation server (Cloud Run) to generate and fetch SVG/PNG banner assets for import into Figma."
   }
 }

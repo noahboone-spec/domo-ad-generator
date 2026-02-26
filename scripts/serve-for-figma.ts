@@ -28,8 +28,10 @@ import path from "path";
 import dotenv from "dotenv";
 import { GoogleGenAI } from "@google/genai";
 
-// Load API keys from toolkit .env
-dotenv.config({ path: path.resolve(process.env.HOME || "", ".domo-toolkit/.env") });
+// Load API keys: env vars first (Cloud Run), fallback to toolkit .env (local dev)
+if (!process.env.GEMINI_API_KEY) {
+  dotenv.config({ path: path.resolve(process.env.HOME || "", ".domo-toolkit/.env") });
+}
 
 // Allow self-signed certs (corporate proxy environments)
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = "0";
@@ -434,7 +436,7 @@ function readBody(req: http.IncomingMessage): Promise<string> {
 // Server
 // ──────────────────────────────────────────────
 const opts = parseArgs();
-const PORT = parseInt(opts.port || "8765", 10);
+const PORT = parseInt(process.env.PORT || opts.port || "8765", 10);
 const DIR = opts.dir; // optional — enables legacy serve mode
 
 const server = http.createServer(async (req, res) => {
