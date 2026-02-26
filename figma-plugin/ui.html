@@ -296,6 +296,7 @@
 
   <script>
     var SERVER = "https://domo-banner-server-1053548598846.us-central1.run.app";
+    var PLUGIN_KEY = "SJ62eSmoeSnjdwYOiymUdGpLSzH2GSQ6MogyYOcI9s8";
     var statusEl = document.getElementById("status");
     var progressBar = document.getElementById("progress-bar");
     var progressEl = document.getElementById("progress");
@@ -329,7 +330,7 @@
     async function loadThemes() {
       var grid = document.getElementById("theme-grid");
       try {
-        var res = await fetch(SERVER + "/api/themes");
+        var res = await fetch(SERVER + "/api/themes", { headers: { "X-Plugin-Key": PLUGIN_KEY } });
         var themesData = await res.json();
         themesData.forEach(function(t) {
           var swatch = document.createElement("div");
@@ -400,7 +401,7 @@
     async function loadIllustrations() {
       var selectEl = document.getElementById("illustration");
       try {
-        var res = await fetch(SERVER + "/api/illustrations");
+        var res = await fetch(SERVER + "/api/illustrations", { headers: { "X-Plugin-Key": PLUGIN_KEY } });
         var files = await res.json();
         files.forEach(function(f) {
           var opt = document.createElement("option");
@@ -437,7 +438,7 @@
       try {
         var res = await fetch(SERVER + "/api/copy", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Plugin-Key": PLUGIN_KEY },
           body: JSON.stringify({ product: input }),
         });
         var data = await res.json();
@@ -494,7 +495,7 @@
       try {
         var res = await fetch(SERVER + "/api/generate-image", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Plugin-Key": PLUGIN_KEY },
           body: JSON.stringify({ prompt: prompt }),
         });
         var data = await res.json();
@@ -608,7 +609,7 @@
 
         var res = await fetch(SERVER + "/api/generate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "X-Plugin-Key": PLUGIN_KEY },
           body: JSON.stringify(payload),
         });
 

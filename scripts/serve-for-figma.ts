@@ -421,13 +421,25 @@ function parseArgs() {
 function setCors(res: http.ServerResponse) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+  res.setHeader("Access-Control-Allow-Headers", "Content-Type, X-Plugin-Key");
 }
 
 function sendJson(res: http.ServerResponse, data: unknown, status = 200) {
   setCors(res);
   res.writeHead(status, { "Content-Type": "application/json" });
   res.end(JSON.stringify(data));
+}
+
+// ──────────────────────────────────────────────
+// API key auth middleware
+// ──────────────────────────────────────────────
+function checkAuth(req: http.IncomingMessage, res: http.ServerResponse): boolean {
+  const pluginKey = process.env.PLUGIN_API_KEY;
+  if (!pluginKey) return true; // No key configured = skip auth (local dev)
+  const provided = req.headers["x-plugin-key"];
+  if (provided === pluginKey) return true;
+  sendJson(res, { error: "Unauthorized — invalid or missing API key" }, 401);
+  return false;
 }
 
 // ──────────────────────────────────────────────
@@ -462,6 +474,7 @@ const server = http.createServer(async (req, res) => {
 
   // ── API: GET /api/themes ──
   if (url.pathname === "/api/themes" && req.method === "GET") {
+    if (!checkAuth(req, res)) return;
     sendJson(res, Object.keys(themes).map((name) => ({
       name,
       bgColor: themes[name].bgColor,
@@ -474,6 +487,7 @@ const server = http.createServer(async (req, res) => {
 
   // ── API: GET /api/layouts ──
   if (url.pathname === "/api/layouts" && req.method === "GET") {
+    if (!checkAuth(req, res)) return;
     sendJson(res, layouts.map((l) => ({
       slug: l.slug,
       width: l.width,
@@ -485,6 +499,7 @@ const server = http.createServer(async (req, res) => {
 
   // ── API: GET /api/illustrations ──
   if (url.pathname === "/api/illustrations" && req.method === "GET") {
+    if (!checkAuth(req, res)) return;
     const files = fs.readdirSync(ASSETS_DIR)
       .filter((f) => f.endsWith(".png") || f.endsWith(".jpg"));
     sendJson(res, files);
@@ -493,12 +508,12 @@ const server = http.createServer(async (req, res) => {
 
   // ── API: POST /api/copy (Knowledge Graph) ──
   if (url.pathname === "/api/copy" && req.method === "POST") {
+    if (!checkAuth(req, res)) return;
     try {
       const body = JSON.parse(await readBody(req));
       const product: string = body.product || "data integration";
       const KG_API_URL = "https://knowledge-graph-api-1053548598846.us-central1.run.app";
-      // Default key from kg_api_helper.py — env var override if set correctly
-      const KG_API_KEY = "1nbtfQeoY9/nmY8xvdbhrF9H23q6tqh6q7jmIiu8Xxs=";
+      const KG_API_KEY = process.env.KG_API_KEY || "";
 
       if (!KG_API_KEY) {
         sendJson(res, { error: "KG_API_KEY not configured in ~/.domo-toolkit/.env" }, 500);
@@ -557,6 +572,7 @@ const server = http.createServer(async (req, res) => {
 
   // ── API: POST /api/generate-image (Gemini) ──
   if (url.pathname === "/api/generate-image" && req.method === "POST") {
+    if (!checkAuth(req, res)) return;
     try {
       const body = JSON.parse(await readBody(req));
       const prompt: string = body.prompt || "modern data dashboard screenshot";
@@ -604,6 +620,7 @@ const server = http.createServer(async (req, res) => {
 
   // ── API: POST /api/generate ──
   if (url.pathname === "/api/generate" && req.method === "POST") {
+    if (!checkAuth(req, res)) return;
     try {
       const body = JSON.parse(await readBody(req));
       const headline: string = body.headline || "Connect all your data sources in minutes";
