@@ -195,7 +195,20 @@
       </div>
     </div>
 
-    <!-- ── 5. GENERATE ── -->
+    <!-- ── 5. PLACEMENT ── -->
+    <div class="section">
+      <label>Page Placement</label>
+      <div class="channels">
+        <div class="channel-btn active" data-placement="current" onclick="togglePlacement(this)">
+          Current Page
+        </div>
+        <div class="channel-btn" data-placement="new" onclick="togglePlacement(this)">
+          New Page
+        </div>
+      </div>
+    </div>
+
+    <!-- ── 6. GENERATE ── -->
     <button class="generate-btn" id="generate-btn" onclick="generate()">Generate &amp; Import</button>
   </div>
 
@@ -215,6 +228,7 @@
     var activeChannels = new Set(["linkedin", "gdn"]);
     var generatedImageBase64 = null;
     var useGeneratedImage = false;
+    var useCurrentPage = true;
 
     // ── Safe DOM helpers ──
     function createStatusItem(icon, iconClass, text) {
@@ -298,6 +312,15 @@
         activeChannels.add(ch);
         el.classList.add("active");
       }
+    }
+
+    // ── Placement ──
+    function togglePlacement(el) {
+      var placement = el.dataset.placement;
+      useCurrentPage = (placement === "current");
+      document.querySelectorAll("[data-placement]").forEach(function(btn) {
+        btn.classList.toggle("active", btn.dataset.placement === placement);
+      });
     }
 
     // ── Illustrations ──
@@ -447,7 +470,8 @@
         clearElement(messageEl);
         var p = document.createElement("p");
         p.className = "done";
-        p.textContent = "Done! Created " + msg.count + " banners on page \u201C" + msg.pageName + "\u201D";
+        var pageDesc = msg.usedCurrentPage ? "current page" : "page \u201C" + msg.pageName + "\u201D";
+        p.textContent = "Done! Created " + msg.count + " banners on " + pageDesc;
         messageEl.appendChild(p);
 
         var closeBtn = document.createElement("button");
@@ -523,6 +547,7 @@
             type: "create-banners",
             pageName: data.pageName,
             banners: data.banners,
+            useCurrentPage: useCurrentPage,
           },
         }, "*");
       } catch (err) {

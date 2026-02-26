@@ -13,18 +13,35 @@
  * 3. This code creates editable Figma nodes from each SVG
  */
 
-figma.showUI(__html__, { width: 450, height: 400 });
+figma.showUI(__html__, { width: 450, height: 460 });
 
 figma.ui.onmessage = async (msg) => {
   if (msg.type === "create-banners") {
-    const { pageName, banners } = msg;
+    const { pageName, banners, useCurrentPage } = msg;
 
-    // Create a new page for the banners
-    const page = figma.createPage();
-    page.name = pageName || "Generated Banners";
-    figma.currentPage = page;
-
+    let page;
     let xOffset = 0;
+    let yOffset = 0;
+
+    if (useCurrentPage) {
+      // Place on current page — offset below existing content
+      page = figma.currentPage;
+      const children = page.children;
+      if (children.length > 0) {
+        let maxY = 0;
+        for (const child of children) {
+          const bottom = child.y + child.height;
+          if (bottom > maxY) maxY = bottom;
+        }
+        yOffset = maxY + 100; // 100px gap below existing content
+      }
+    } else {
+      // Create a new page
+      page = figma.createPage();
+      page.name = pageName || "Generated Banners";
+      figma.currentPage = page;
+    }
+
     const SPACING = 60;
     const created = [];
 
@@ -37,14 +54,14 @@ figma.ui.onmessage = async (msg) => {
           node = figma.createNodeFromSvg(banner.svgContent);
           node.name = banner.slug;
           node.x = xOffset;
-          node.y = 0;
+          node.y = yOffset;
         } else if (banner.imageBytes) {
           // PNG fallback — creates frame with image fill
           const frame = figma.createFrame();
           frame.name = banner.slug;
           frame.resize(banner.width, banner.height);
           frame.x = xOffset;
-          frame.y = 0;
+          frame.y = yOffset;
 
           const imageBytes = new Uint8Array(banner.imageBytes);
           const image = figma.createImage(imageBytes);
@@ -79,7 +96,7 @@ figma.ui.onmessage = async (msg) => {
       }
     }
 
-    // Zoom to fit all frames
+    // Zoom to fit all new frames
     if (page.children.length > 0) {
       figma.viewport.scrollAndZoomIntoView(page.children);
     }
@@ -87,7 +104,8 @@ figma.ui.onmessage = async (msg) => {
     figma.ui.postMessage({
       type: "complete",
       count: created.length,
-      pageName: page.name,
+      pageName: useCurrentPage ? page.name : pageName,
+      usedCurrentPage: !!useCurrentPage,
     });
   }
 

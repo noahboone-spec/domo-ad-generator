@@ -86,7 +86,7 @@ const themes: Record<string, ThemeConfig> = {
     ctaBgColor: "#FF9922",
     ctaTextColor: "#FFFFFF",
     ctaBorderRadius: 3,
-    logoBgColor: "#776CB0",
+    logoBgColor: "#99CCEE",
   },
   mint: {
     bgColor: "#FFFFFF",
@@ -95,7 +95,7 @@ const themes: Record<string, ThemeConfig> = {
     ctaBgColor: "#FF9922",
     ctaTextColor: "#FFFFFF",
     ctaBorderRadius: 3,
-    logoBgColor: "#ADD4C1",
+    logoBgColor: "#99CCEE",
   },
   bold: {
     bgColor: "#111111",
@@ -104,7 +104,7 @@ const themes: Record<string, ThemeConfig> = {
     ctaBgColor: "#99CCEE",
     ctaTextColor: "#111111",
     ctaBorderRadius: 3,
-    logoBgColor: "#FF9922",
+    logoBgColor: "#FFFFFF",
   },
 };
 
